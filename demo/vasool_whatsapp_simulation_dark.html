@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vasool WhatsApp simulation</title>
+<style>
+  :root{
+    --bar:#1f2c34; --bar-text:#e9edef; --chat-bg:#0b141a; --out:#005c4b; --in:#202c33;
+    --text:#e9edef; --muted:#8696a0; --blue:#305eff; --navy:#132644;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px 0;
+       background:#05090c;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text)}
+  .stage{position:relative;overflow:hidden;border-radius:28px}
+  .phone{width:390px;height:760px;max-width:100vw;background:var(--chat-bg);border-radius:28px;overflow:hidden;
+         box-shadow:0 12px 40px rgba(0,0,0,.6);display:flex;flex-direction:column;border:6px solid #2a3942}
+  .top{background:var(--bar);color:var(--bar-text);padding:12px 14px;display:flex;align-items:center;gap:12px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:#6a7175;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+  .who b{display:block;font-size:16px;font-weight:600}
+  .who span{font-size:12px;opacity:.85}
+  .banner{background:#3b3416;color:#f3dc8a;font-size:11.5px;text-align:center;padding:6px 10px;line-height:1.35}
+  .chat{flex:1;overflow-y:auto;padding:12px 12px 8px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
+  .day{align-self:center;background:#182229;color:#8696a0;font-size:11.5px;padding:4px 10px;border-radius:8px;margin:2px 0 6px}
+  .msg{max-width:82%;padding:7px 9px 5px;border-radius:9px;font-size:14.2px;line-height:1.38;box-shadow:0 1px 1px rgba(0,0,0,.12);
+       white-space:pre-wrap;word-wrap:break-word;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .msg.show{opacity:1;transform:none}
+  .msg.out{align-self:flex-end;background:var(--out);border-top-right-radius:2px}
+  .msg.in{align-self:flex-start;background:var(--in);border-top-left-radius:2px}
+  .msg a{color:#53bdeb;word-break:break-all}
+  .meta{display:flex;justify-content:flex-end;align-items:center;gap:4px;font-size:10.5px;color:var(--muted);margin-top:2px}
+  .tag{font-size:10.5px;color:#7fe0cc;font-weight:600;margin-bottom:2px}
+  .typing{align-self:flex-start;background:var(--in);border-radius:9px;border-top-left-radius:2px;padding:10px 12px;display:none;gap:4px;box-shadow:0 1px 1px rgba(0,0,0,.12)}
+  .typing.out{align-self:flex-end;background:var(--out);border-top-right-radius:2px;border-top-left-radius:9px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:#8696a0;animation:b 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  @keyframes b{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+  .sys{align-self:center;max-width:90%;background:#16222b;border:1px solid #2a3942;border-left:4px solid var(--blue);border-radius:8px;
+       padding:8px 10px;font-size:12.5px;color:#e9edef;line-height:1.4;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .sys.show{opacity:1;transform:none}
+  .sys .st{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#7b9bff;margin-bottom:2px}
+  .sys .btns{display:flex;gap:8px;margin-top:7px}
+  .sys .btn{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid #2a3942;background:#202c33;color:#e9edef}
+  .sys .btn.ok{background:var(--blue);border-color:var(--blue);color:#fff}
+  .summary{align-self:center;width:94%;background:linear-gradient(135deg,#132644,#203553);border:1px solid #305eff;color:#fff;border-radius:12px;padding:12px 14px;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s}
+  .summary.show{opacity:1;transform:none}
+  .summary small{opacity:.75;font-size:11px;display:block}
+  .summary strong{font-size:22px;display:block;margin:2px 0 4px}
+  .summary p{margin:0;font-size:12.5px;opacity:.9}
+  .input{background:#1f2c34;padding:8px 10px;display:flex;align-items:center;gap:8px}
+  .fake{flex:1;background:#2a3942;border-radius:20px;padding:9px 14px;color:#8696a0;font-size:13.5px}
+
+  /* start overlay */
+  .start{position:absolute;inset:0;border-radius:28px;background:rgba(19,38,68,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;text-align:center;padding:24px;z-index:5}
+  .start.hide{display:none}
+  .start h2{margin:0;font-size:20px}
+  .start p{margin:0;font-size:13px;opacity:.85;line-height:1.45}
+  .start button{font:inherit;font-size:16px;padding:12px 26px;border-radius:10px;border:0;background:#305eff;color:#fff;cursor:pointer}
+  .start button:hover{background:#2950da}
+
+  .panel{width:390px;max-width:100vw;background:#111b21;border:1px solid #2a3942;border-radius:12px;padding:10px 12px;font-size:12.5px;color:#cfd8dc;display:grid;gap:8px}
+  .panel label{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center}
+  .panel select,.panel input[type=range]{width:100%;font:inherit;font-size:12.5px}
+  .panel .row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+  .panel button{font:inherit;font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid #305eff;background:#111b21;color:#8fa8ff;cursor:pointer}
+  .panel select{background:#202c33;color:#e9edef;border:1px solid #2a3942}
+
+  /* payment page overlay (recreation of the Razorpay test-mode payment link page) */
+  .pay{position:absolute;inset:0;border-radius:28px;overflow:hidden;background:#f0f4f6;z-index:4;display:flex;flex-direction:column;
+       transform:translateY(100%);transition:transform .45s ease;color:#132644;border:6px solid #2a3942}
+  .pay.show{transform:none}
+  .pay .url{background:#e9edf1;font-size:12px;color:#44546a;padding:9px 12px;display:flex;gap:8px;align-items:center;border-bottom:1px solid #d5dbe3}
+  .pay .url b{font-weight:500;background:#fff;border-radius:14px;padding:4px 12px;flex:1}
+  .pay .hd{background:#2a6df4;color:#fff;padding:16px 16px;display:flex;align-items:center;gap:12px;font-weight:700;font-size:16px;letter-spacing:.2px}
+  .pay .hd i{font-style:normal;width:40px;height:40px;border:1px solid rgba(255,255,255,.7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .pay .body{padding:12px;display:flex;flex-direction:column;gap:10px;flex:1;overflow:hidden}
+  .pay .note{background:#fdf6dc;color:#7a6330;border-radius:10px;padding:9px 12px;font-size:12px;line-height:1.35}
+  .pay .card{background:#fff;border-radius:12px;padding:14px;font-size:13px}
+  .pay h3{margin:0 0 8px;font-size:17px;line-height:1.25}
+  .pay .lbl{font-size:10.5px;letter-spacing:.05em;color:#7b8aa0;text-transform:uppercase;margin-top:8px}
+  .pay .amt{font-size:21px;font-weight:700;margin:2px 0}
+  .pay .due{font-size:12.5px}.pay .due span{color:#8793a5}
+  .pay .rzp{background:#fafafa;border:1px solid #e6eaf0;border-radius:12px;padding:12px;font-size:12px;color:#44546a}
+  .pay .rzp b{font-size:18px;color:#2a3dba;font-style:italic;letter-spacing:-.3px}
+  .pay .cta{margin:0 12px 14px;background:#000;color:#fff;border-radius:12px;text-align:center;padding:14px;font-weight:700;font-size:15px;transition:transform .15s,background .15s}
+  .pay .cta.press{transform:scale(.96);background:#2b2b2b}
+  .pay .view{display:none;flex-direction:column;flex:1}
+  .pay .view.on{display:flex}
+  .pay .opt{display:flex;align-items:center;gap:10px;border:1.5px solid #e1e6ee;border-radius:10px;padding:11px 12px;font-size:13.5px;background:#fff}
+  .pay .opt.sel{border-color:#305eff;background:#f3f6ff}
+  .pay .opt .dot{width:14px;height:14px;border:2px solid #aab4c3;border-radius:50%}
+  .pay .opt.sel .dot{border-color:#305eff;background:radial-gradient(#305eff 45%,#fff 50%)}
+  .pay .field{background:#fff;border:1.5px solid #305eff;border-radius:10px;padding:11px 12px;font-size:14px;min-height:42px}
+  .pay .spin{width:46px;height:46px;border:4px solid #d6def0;border-top-color:#305eff;border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 14px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .pay .center{margin:auto;text-align:center;padding:20px}
+  .pay .ok{width:70px;height:70px;border-radius:50%;background:#1faa59;color:#fff;font-size:38px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;animation:pop .35s ease}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+  .side{display:flex;flex-direction:column;gap:12px;align-items:center}
+  body{flex-direction:row !important;flex-wrap:wrap;gap:28px !important}
+  .foot{font-size:11.5px;color:#8696a0;text-align:center;max-width:390px;line-height:1.4}
+  body.rec .panel, body.rec .foot{display:none}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone" aria-label="WhatsApp-style chat simulation">
+    <div class="top">
+      <div class="avatar">ST</div>
+      <div class="who"><b>Sharma Traders</b><span>online</span></div>
+    </div>
+    <div class="banner">Simulation of a Vasool reminder, sent from Ravi's business number after Ravi approves it</div>
+    <div class="chat" id="chat" aria-live="polite">
+      <div class="typing" id="typing"><i></i><i></i><i></i></div>
+    </div>
+    <div class="input"><div class="fake">Message</div></div>
+  </div>
+  <div class="pay" id="pay">
+    <div class="url">&#128274;<b>rzp.io/rzp/2RKJPnO</b></div>
+    <div class="view on" id="pv1">
+      <div class="hd"><i>R</i>RAVI PACKAGING</div>
+      <div class="body">
+        <div class="note">This payment link is created in <b>Test Mode</b>. Only test payments can be made for this.</div>
+        <div class="card"><h3>Payment Request from Ravi Packaging</h3>
+          <div class="lbl">Payment for</div>INV-1016, part 1 of 2 (Vasool demo, test)
+          <div class="lbl">Amount payable</div><div class="amt">INR 49,000.00</div>
+          <div class="due"><b>INR 49,000.00</b> <span>DUE</span></div><div class="due"><span>INR 0.00 PAID</span></div></div>
+        <div class="rzp"><b>Razorpay</b> &nbsp;UPI &nbsp;VISA &nbsp;RuPay<br><span style="line-height:2">Secure payment, PCI compliant.</span></div>
+      </div>
+      <div class="cta" id="cta1">Proceed to Pay</div>
+    </div>
+    <div class="view" id="pv2">
+      <div class="hd"><i>R</i>RAVI PACKAGING</div>
+      <div class="body">
+        <div style="font-weight:700;font-size:15px">Select payment method</div>
+        <div class="opt sel"><span class="dot"></span>UPI</div>
+        <div class="opt"><span class="dot"></span>Cards</div>
+        <div class="opt"><span class="dot"></span>Netbanking</div>
+        <div class="lbl">UPI ID</div>
+        <div class="field" id="upi"></div>
+      </div>
+      <div class="cta" id="cta2">Pay &#8377;49,000</div>
+    </div>
+    <div class="view" id="pv3"><div class="center"><div class="spin"></div><b>Processing payment</b><div style="font-size:12px;color:#667;margin-top:6px">Please do not close this page</div></div></div>
+    <div class="view" id="pv4"><div class="center"><div class="ok">&#10003;</div><div style="font-size:19px;font-weight:700">Payment successful</div>
+      <div style="font-size:14px;margin-top:6px">&#8377;49,000 paid to Ravi Packaging</div><div style="font-size:11.5px;color:#778;margin-top:10px">Test mode payment. Invoice INV-1016 balance: &#8377;49,000</div></div></div>
+  </div>
+  <div class="start" id="start">
+    <h2>Vasool demo</h2>
+    <p>Start your screen recorder first, then press the button.<br>The chat plays with a voice for each message.</p>
+    <button id="go">Start demo &#9654;</button>
+  </div>
+</div>
+
+<div class="side">
+<div class="panel" id="panel">
+  <div class="row"><b>Voice settings</b><button id="test">Test voices</button></div>
+  <div id="vstatus" style="font-size:11.5px;color:#8696a0;line-height:1.4"></div>
+  <label>Vasool (female)<select id="vA"></select></label>
+  <label>Sharma (male)<select id="vB"></select></label>
+  <label><span>Demo speed <b id="spv" style="color:#8fa8ff">1.5x</b></span><input id="spd" type="range" min="0.8" max="2.5" step="0.1" value="1.5"></label>
+  <label>Voice speed<input id="rate" type="range" min="0.8" max="1.3" step="0.05" value="1.0"></label>
+  <label>Narrate cards<input id="narr" type="checkbox" checked style="justify-self:start"></label>
+  <label>Voice on<input id="voiceOn" type="checkbox" checked style="justify-self:start"></label>
+  <label>Hide this panel on start<input id="autohide" type="checkbox" checked style="justify-self:start"></label>
+  <div class="row"><span>Press H any time to show or hide</span><button id="hidebtn">Hide panel now</button></div>
+</div>
+<div class="foot">Prototype illustration. Names, amounts and dates are example data; the payment link is Razorpay test mode. Add <b>#rec</b> to the page address to hide this panel.</div>
+</div>
+
+<script>
+  var chat = document.getElementById('chat');
+  var typing = document.getElementById('typing');
+  var LINK = 'https://rzp.io/rzp/2RKJPnO';
+  var runId = 0;
+
+  // ---------- script ----------
+  // who: A = Vasool (Ravi's business, female voice), B = customer (male voice), N = narrator on cards
+  var script = [
+    {t:'day', text:'Tuesday 13 October'},
+    {t:'out', who:'A', typing:1000, tag:'Ravi Packaging via Vasool', time:'10:02',
+     text:'Namaste Mr. Sharma, I am Vasool, a gentle reminder from Ravi Packaging.\n\nInvoice INV-1016 has ₹98,000 pending, 9 days past due.\n\nPay securely here:\n<a href="'+LINK+'">'+LINK+'</a>',
+     say:'Namaste Mr. Sharma, I am Vasool, a gentle reminder from Ravi Packaging. Invoice one zero one six has ninety eight thousand rupees pending, nine days past due. Pay securely using the link below.'},
+    {t:'in', who:'B', typing:1200, time:'10:14',
+     text:'Cash is tight this week. Can I pay half now, and the rest next week?',
+     say:'Cash is tight this week. Can I pay half now, and the rest next week?'},
+    {t:'sys', who:'N', title:'Vasool read the reply',
+     html:'Intent: <b>split payment</b>. Plan: ₹49,000 now, ₹49,000 on Wed 21 Oct. Sent to Ravi for approval.'
+          +'<div class="btns"><span class="btn">Edit</span><span class="btn ok">Approve</span></div>',
+     say:'Vasool drafts a split plan, and sends it to Ravi.'},
+    {t:'sys', who:'N', title:'Ravi approved', html:'Approved in 1 tap. Vasool replies on Ravi\'s behalf.',
+     say:'Ravi approves with one tap.'},
+    {t:'out', who:'A', typing:1000, tag:'Ravi Packaging via Vasool', time:'10:16',
+     text:'That works, Mr. Sharma.\n\n₹49,000 now, the rest on Wed 21 Oct.\n\nFirst part:\n<a href="'+LINK+'">'+LINK+'</a>',
+     say:'That works, Mr. Sharma. Forty nine thousand now, the rest on twenty first October. First part, link below.'},
+    {t:'pay', who:'N', say:'Mr. Sharma opens the link, and pays by UPI.'},
+    {t:'in', who:'B', typing:900, time:'10:31', text:'Done, paid ₹49,000.',
+     say:'Done. Paid forty nine thousand.'},
+    {t:'out', who:'A', typing:900, tag:'Ravi Packaging via Vasool', time:'10:32',
+     text:'Received, thank you! I will remind you the day before the next payment.',
+     say:'Received, thank you! I will remind you the day before the next payment.'},
+    {t:'summary', who:'N',
+     say:'Forty nine thousand rupees collected, without a single call from Ravi.'}
+  ];
+
+  // ---------- voices ----------
+  var voices = [];
+  var vA = document.getElementById('vA'), vB = document.getElementById('vB');
+  var FEMALE = /neerja|kalpana|heera|swara|aria|jenny|zira|samantha|veena|karen|moira|tessa|female|libby|sonia|natasha|google uk english female|google us english/i;
+  var MALE   = /prabhat|hemant|ravi|madhur|guy|ryan|david|mark|daniel|rishi|alex|male|james|google uk english male|thomas/i;
+
+  function score(v, wantFemale){
+    var s = 0, n = v.name;
+    if(/en[-_]IN/i.test(v.lang)) s += 40;
+    else if(/hi[-_]IN/i.test(v.lang)) s += 30;
+    else if(/^en/i.test(v.lang)) s += 10;
+    else s -= 100;
+    if(/natural|online/i.test(n)) s += 25;
+    if(wantFemale){ if(FEMALE.test(n)) s += 20; if(MALE.test(n) && !FEMALE.test(n)) s -= 30; }
+    else { if(MALE.test(n)) s += 20; if(FEMALE.test(n) && !MALE.test(n)) s -= 30; }
+    return s;
+  }
+  var touched = false;
+  function loadVoices(){
+    voices = (window.speechSynthesis ? speechSynthesis.getVoices() : []).filter(function(v){ return /^(en|hi)/i.test(v.lang); });
+    if(!voices.length){ vA.innerHTML = vB.innerHTML = '<option>No English voices found: will play silent</option>'; setStatus(); return; }
+    [vA, vB].forEach(function(sel, i){
+      var prev = sel.value;
+      sel.innerHTML = '';
+      voices.slice().sort(function(a,b){ return score(b, i===0) - score(a, i===0); }).forEach(function(v){
+        var o = document.createElement('option'); o.value = v.name; o.textContent = v.name + ' (' + v.lang + ')'; sel.appendChild(o);
+      });
+      if(touched && prev) sel.value = prev;
+    });
+    // guarantee two DIFFERENT voices
+    if(!touched && voices.length > 1 && vA.value === vB.value){
+      var alt = voices.slice().sort(function(a,b){ return score(b,false) - score(a,false); })
+                      .filter(function(v){ return v.name !== vA.value; })[0];
+      if(alt) vB.value = alt.name;
+    }
+    setStatus();
+  }
+  function setStatus(){
+    var el = document.getElementById('vstatus'); if(!el) return;
+    if(!voices.length){ el.textContent = 'No voices detected yet. Open this file in Edge and click Test voices.'; return; }
+    var same = vA.value === vB.value;
+    el.textContent = 'Vasool: ' + vA.value + '  |  Sharma: ' + vB.value + '  (' + voices.length + ' voices found)' +
+      (same ? '  WARNING: same voice. Install/choose another.' : '');
+  }
+  vA.addEventListener('change', function(){ touched = true; setStatus(); });
+  vB.addEventListener('change', function(){ touched = true; setStatus(); });
+  if(window.speechSynthesis){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; [300,1000,2500].forEach(function(t){ setTimeout(loadVoices, t); }); }
+  function voiceByName(n){ return voices.filter(function(v){ return v.name === n; })[0]; }
+
+  function speak(text, who){
+    return new Promise(function(resolve){
+      var on = document.getElementById('voiceOn').checked;
+      var words = text.split(/\s+/).length;
+      var rate = Math.min(1.9, (parseFloat(document.getElementById('rate').value) || 1) * SPEED());
+      var fallbackMs = Math.round(words * 330 / rate) + 400;
+      if(!on || !window.speechSynthesis || !voices.length){ setTimeout(resolve, fallbackMs); return; }
+      var u = new SpeechSynthesisUtterance(text);
+      var v = voiceByName(who === 'B' ? vB.value : vA.value);
+      if(v){ u.voice = v; u.lang = v.lang; }
+      u.rate = rate;
+      // extra separation: Vasool a touch higher, Sharma lower; stronger if only one voice exists
+      var same = (vA.value === vB.value) || voices.length < 2;
+      if(who === 'B') u.pitch = same ? 0.6 : 0.85;
+      else u.pitch = same ? 1.4 : 1.1;
+      if(who === 'N'){ u.pitch = 0.9; u.rate = rate * 1.03; }
+      var done = false;
+      function fin(){ if(!done){ done = true; resolve(); } }
+      u.onend = fin; u.onerror = fin;
+      setTimeout(fin, fallbackMs * 2 + 3000);   // safety net
+      speechSynthesis.speak(u);
+    });
+  }
+
+  // ---------- rendering ----------
+  function SPEED(){ return parseFloat($('spd').value) || 1; }
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms / SPEED()); }); }
+  function scroll(){ chat.scrollTop = chat.scrollHeight; }
+  function add(el){
+    chat.insertBefore(el, typing);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('show'); scroll(); }); });
+  }
+  function render(step){
+    var el;
+    if(step.t === 'day'){ el = document.createElement('div'); el.className = 'day'; el.textContent = step.text; chat.insertBefore(el, typing); return; }
+    if(step.t === 'out' || step.t === 'in'){
+      el = document.createElement('div'); el.className = 'msg ' + step.t;
+      el.innerHTML = (step.tag ? '<div class="tag">' + step.tag + '</div>' : '') + step.text +
+        '<div class="meta"><span>' + step.time + '</span>' + (step.t === 'out' ? '<span style="color:#53bdeb">✓✓</span>' : '') + '</div>';
+      add(el); return;
+    }
+    if(step.t === 'sys'){
+      el = document.createElement('div'); el.className = 'sys';
+      el.innerHTML = '<span class="st">' + step.title + '</span>' + step.html; add(el); return;
+    }
+    if(step.t === 'summary'){
+      el = document.createElement('div'); el.className = 'summary';
+      el.innerHTML = '<small>Ravi\'s dashboard (illustrative)</small><strong>₹49,000 collected</strong><p>Invoice INV-1016 · 2 instalments scheduled · amounts from invoice data only, no pressure tactics</p>';
+      add(el);
+    }
+  }
+
+
+  function $(i){ return document.getElementById(i); }
+  function showView(n){ [1,2,3,4].forEach(function(k){ $('pv'+k).classList.toggle('on', k===n); }); }
+  async function payFlow(id){
+    var pay = $('pay'); showView(1); $('upi').textContent = '';
+    pay.classList.add('show'); await sleep(2600); if(id!==runId) return;
+    $('cta1').classList.add('press'); await sleep(350); $('cta1').classList.remove('press');
+    showView(2); await sleep(700);
+    var u = 'sharmatraders@upi';
+    for(var i=1;i<=u.length;i++){ $('upi').textContent = u.slice(0,i); await sleep(70); if(id!==runId) return; }
+    await sleep(500); $('cta2').classList.add('press'); await sleep(350); $('cta2').classList.remove('press');
+    showView(3); await sleep(1300); if(id!==runId) return;
+    showView(4); await sleep(2400); if(id!==runId) return;
+    pay.classList.remove('show'); await sleep(600);
+  }
+  async function play(){
+    var id = ++runId; $('pay').classList.remove('show');
+    if(window.speechSynthesis) speechSynthesis.cancel();
+    Array.prototype.slice.call(chat.children).forEach(function(c){ if(c !== typing) c.remove(); });
+    typing.style.display = 'none';
+    await sleep(600);
+    for(var i = 0; i < script.length; i++){
+      if(id !== runId) return;
+      var s = script[i];
+      if(s.t === 'pay'){
+        var nr = $('narr').checked;
+        await Promise.all([payFlow(id), nr ? speak(s.say, 'N') : sleep(1400)]);
+        await sleep(400); continue;
+      }
+      if(s.typing){
+        typing.className = 'typing ' + (s.t === 'out' ? 'out' : '');
+        typing.style.display = 'flex'; scroll();
+        await sleep(s.typing);
+        typing.style.display = 'none';
+      }
+      render(s);
+      if(s.say){
+        var narrate = document.getElementById('narr').checked;
+        if(s.who === 'N' && !narrate){ await sleep(1400); }
+        else { await sleep(350); await speak(s.say, s.who); }
+      }
+      await sleep(s.t === 'in' ? 500 : 650);
+    }
+  }
+
+  // ---------- controls ----------
+  $('spd').addEventListener('input', function(){ $('spv').textContent = SPEED().toFixed(1) + 'x'; });
+  $('hidebtn').addEventListener('click', function(){ document.body.classList.add('rec'); });
+  document.getElementById('go').addEventListener('click', function(){
+    if($('autohide').checked) document.body.classList.add('rec');
+    document.getElementById('start').classList.add('hide');
+    play();
+  });
+  document.getElementById('test').addEventListener('click', function(){
+    if(window.speechSynthesis) speechSynthesis.cancel();
+    speak('Namaste Mr. Sharma, this is a gentle reminder from Ravi Packaging.', 'A').then(function(){
+      return speak('Namaste. Cash is a bit tight this week.', 'B');
+    });
+  });
+  if(location.hash === '#rec') document.body.classList.add('rec');
+  // keyboard: R to replay
+  document.addEventListener('keydown', function(e){ if(e.key === 'h' || e.key === 'H'){ document.body.classList.toggle('rec'); return; } if(e.key === 'r' || e.key === 'R'){ document.getElementById('start').classList.add('hide'); play(); } });
+</script>
+</body>
+</html>
