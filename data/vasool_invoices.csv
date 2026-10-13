@@ -1,0 +1,35 @@
+invoice_no,payer_id,payer_name,amount_inr,issue_date,due_date,status,amount_paid_inr,paid_date,days_overdue,link_opened,reminders_sent,last_payer_reply,notes
+INV-1001,P08,Lakshmi Motor Works,24500,2026-06-21,2026-07-21,paid_late,24500,2026-08-21,0,yes,4,,Paid after owner called
+INV-1002,P03,Raju Tyres & Wheels,31200,2026-07-01,2026-07-31,paid_late,31200,2026-08-22,0,yes,3,,Paid only after phone call
+INV-1003,P01,Sri Venkateswara Auto Garage,18450,2026-07-06,2026-08-05,paid_late,18450,2026-08-10,0,yes,1,,
+INV-1004,P04,Charminar Auto Spares,45600,2026-07-11,2026-08-10,paid_late,45600,2026-08-21,0,yes,2,,Short-shipment dispute resolved with credit note
+INV-1005,P07,Metro Cab Services,310000,2026-07-11,2026-08-10,paid_on_time,310000,2026-08-09,0,yes,0,,
+INV-1006,P02,Hyderabad Motors Pvt Ltd,84500,2026-07-13,2026-08-12,paid_on_time,84500,2026-07-16,0,yes,0,,
+INV-1007,P05,Deccan Fleet Services,215000,2026-07-16,2026-08-15,paid_late,215000,2026-08-23,0,yes,1,,Paid in two instalments
+INV-1008,P06,Sai Krishna Bike Point,12800,2026-07-21,2026-08-20,paid_late,12800,2026-08-23,0,yes,1,,Paid a day after reminder
+INV-1009,P10,Gachibowli Car Studio,61200,2026-07-23,2026-08-22,paid_late,61200,2026-09-02,0,yes,1,,
+INV-1010,P08,Lakshmi Motor Works,29900,2026-07-26,2026-08-25,paid_late,29900,2026-09-22,0,yes,3,,Paid after owner called
+INV-1011,P03,Raju Tyres & Wheels,27650,2026-07-31,2026-08-30,paid_late,27650,2026-09-17,0,yes,3,,Paid only after phone call
+INV-1012,P01,Sri Venkateswara Auto Garage,22300,2026-08-08,2026-09-07,paid_late,22300,2026-09-12,0,yes,1,,
+INV-1013,P07,Metro Cab Services,285000,2026-08-10,2026-09-09,paid_on_time,285000,2026-09-09,0,yes,0,,
+INV-1014,P04,Charminar Auto Spares,52300,2026-08-12,2026-09-11,disputed,0,,28,yes,2,Goods short by 2 boxes. Will not pay until credit note.,Dispute raised on day 33
+INV-1015,P02,Hyderabad Motors Pvt Ltd,126000,2026-08-15,2026-09-14,paid_on_time,126000,2026-08-19,0,yes,0,,
+INV-1016,P05,Deccan Fleet Services,188000,2026-08-18,2026-09-17,partially_paid,90000,2026-10-06,22,yes,2,"Paid half now, rest next week.","Balance 98,000 outstanding"
+INV-1017,P06,Sai Krishna Bike Point,9600,2026-08-20,2026-09-19,paid_late,9600,2026-09-23,0,yes,1,,Paid two days after reminder
+INV-1018,P03,Raju Tyres & Wheels,36400,2026-08-22,2026-09-21,overdue,0,,18,yes,2,Send invoice copy again.,"Opened link twice, did not pay"
+INV-1019,P08,Lakshmi Motor Works,21700,2026-08-25,2026-09-24,overdue,0,,15,no,2,,Ignores texts
+INV-1020,P10,Gachibowli Car Studio,57800,2026-08-25,2026-09-24,overdue,0,,15,yes,1,Will pay Friday.,
+INV-1021,P01,Sri Venkateswara Auto Garage,15900,2026-08-30,2026-09-29,overdue,0,,10,yes,1,Sending by month end.,
+INV-1022,P06,Sai Krishna Bike Point,14200,2026-09-02,2026-10-02,overdue,0,,7,no,0,,Has not opened the link
+INV-1023,P04,Charminar Auto Spares,38900,2026-09-03,2026-10-03,overdue,0,,6,yes,1,,"Dispute-prone payer, handle with care"
+INV-1024,P09,Nizam Auto Care,17500,2026-09-04,2026-10-04,overdue,0,,5,no,1,,"First invoice, no history"
+INV-1025,P07,Metro Cab Services,330000,2026-09-06,2026-10-06,overdue,0,,3,yes,0,,Key account: owner follows up personally
+INV-1026,P05,Deccan Fleet Services,240000,2026-09-09,2026-10-09,open,0,,0,yes,0,,Due today
+INV-1027,P08,Lakshmi Motor Works,33400,2026-09-14,2026-10-14,open,0,,0,no,0,,
+INV-1028,P10,Gachibowli Car Studio,66500,2026-09-17,2026-10-17,open,0,,0,yes,0,,
+INV-1029,P02,Hyderabad Motors Pvt Ltd,98200,2026-09-19,2026-10-19,paid_on_time,98200,2026-09-22,0,yes,0,,
+INV-1030,P09,Nizam Auto Care,22400,2026-09-24,2026-10-24,open,0,,0,no,0,,
+INV-1031,P03,Raju Tyres & Wheels,19800,2026-09-27,2026-10-27,open,0,,0,no,0,,
+INV-1032,P06,Sai Krishna Bike Point,8700,2026-09-29,2026-10-29,open,0,,0,no,0,,
+INV-1033,P02,Hyderabad Motors Pvt Ltd,143000,2026-10-01,2026-10-31,open,0,,0,no,0,,Not yet due; typically pays within days
+INV-1034,P07,Metro Cab Services,296000,2026-10-04,2026-11-03,open,0,,0,no,0,,

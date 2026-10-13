@@ -1,0 +1,11 @@
+payer_id,name,business_type,city,preferred_channel,preferred_language,best_contact_time,usual_days_to_pay,payment_behavior,key_account,never_auto_contact,past_disputes,avg_invoice_inr
+P01,Sri Venkateswara Auto Garage,Garage,Hyderabad,WhatsApp,Telugu-English,10:00-12:00,35,"Pays consistently around day 35, never earlier",No,No,0,19000
+P02,Hyderabad Motors Pvt Ltd,Authorised dealer,Hyderabad,SMS,English,09:00-11:00,3,Pays almost instantly after invoice,Yes,No,0,113000
+P03,Raju Tyres & Wheels,Tyre shop,Secunderabad,Voice call,Telugu,11:00-13:00,50,"Chronically late, pays around day 50 and responds to calls not texts",No,No,0,28000
+P04,Charminar Auto Spares,Spares retailer,Hyderabad,WhatsApp,Hindi-English,12:00-14:00,41,Often disputes quantity or quality before paying,No,No,3,45000
+P05,Deccan Fleet Services,Fleet operator,Hyderabad,WhatsApp,English,15:00-17:00,38,"Pays in two instalments, half first then the rest",Yes,No,0,214000
+P06,Sai Krishna Bike Point,Two-wheeler workshop,Warangal,SMS,Telugu-English,09:00-10:00,33,Forgets; pays within a day or two of the first reminder,No,No,0,11000
+P07,Metro Cab Services,Cab fleet,Hyderabad,WhatsApp,English,10:00-12:00,29,"Reliable, pays on time; owner handles this relationship personally",Yes,Yes,0,305000
+P08,Lakshmi Motor Works,Garage,Karimnagar,Voice call,Telugu,17:00-19:00,60,Pays around day 60 unless called; ignores messages,No,No,1,27000
+P09,Nizam Auto Care,Garage,Hyderabad,WhatsApp,Hindi-English,11:00-13:00,,"New customer, no payment history yet",No,No,0,20000
+P10,Gachibowli Car Studio,Car detailing and service,Hyderabad,WhatsApp,English,20:00-22:00,40,Reads messages late evening; pays around day 40,No,No,0,61000

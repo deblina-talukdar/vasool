@@ -1,0 +1,16 @@
+reply_id,reply_text,expected_intent,expected_details,language
+R01,Will pay Friday.,reschedule,date=Friday,English
+R02,Kal tak kar dunga bhai.,reschedule,date=tomorrow,Hinglish
+R03,"Paying half now, rest next week.",split,"share=50%, balance_date=next week",English
+R04,"Aadha abhi bhej raha hoon, baaki Monday ko.",split,"share=50%, balance_date=Monday",Hinglish
+R05,Goods short by 2 boxes. Will not pay until credit note.,dispute,reason=short shipment,English
+R06,"Maal quality theek nahi tha, payment hold karo.",dispute,reason=quality,Hinglish
+R07,Please resend the invoice with GST number.,resend_invoice,,English
+R08,Invoice copy phir se bhejo.,resend_invoice,,Hinglish
+R09,Already paid yesterday via UPI.,paid,"claimed_date=yesterday, mode=UPI",English
+R10,Kal hi NEFT kar diya tha.,paid,"claimed_date=yesterday, mode=NEFT",Hinglish
+R11,Can you give me 5 more days?,reschedule,extension_days=5,English
+R12,"The amount looks wrong, it should be 14,200.",dispute,claimed_amount=14200,English
+R13,Stop messaging me about this.,opt_out,,English
+R14,ok,unclear,,English
+R15,Who is this?,unclear,,English
